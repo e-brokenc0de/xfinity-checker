@@ -1,0 +1,23 @@
+{
+  "name": "xfinity-checker",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "bun run index.ts"
+  },
+  "devDependencies": {
+    "@types/async": "^3.2.24",
+    "@types/bun": "latest",
+    "@types/node": "^20.12.12"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "async": "^3.2.5",
+    "function-timeout": "^1.0.2",
+    "puppeteer": "^22.10.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}
