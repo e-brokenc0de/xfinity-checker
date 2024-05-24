@@ -172,6 +172,8 @@ const start = async () => {
     .map(([email, password]) => ({ email, password }))
     .filter(({ email, password }) => Boolean(email) && Boolean(password));
 
+  let done = 1;
+
   await mapLimit(
     lists.toArray() as CheckLoginProps[],
     config.threadSize,
@@ -192,9 +194,9 @@ const start = async () => {
         const elapsedTimeSeconds = calculateExecutionTime(startTime);
 
         console.log(
-          `${elapsedTimeSeconds}s ${emailPassword} - ${
+          `[${done}/${lists.count()}] ${emailPassword} - ${
             loginStatus ? "LIVE" : "DIE"
-          }`,
+          } - ${elapsedTimeSeconds}s`,
         );
       } catch (error: any) {
         const errorMessage = error?.message || "an unknown error occurred.";
@@ -235,10 +237,10 @@ const start = async () => {
         const elapsedTimeSeconds = calculateExecutionTime(startTime);
 
         console.log(
-          `${elapsedTimeSeconds}s ${emailPassword} - ${errorMessage}`,
+          `[${done}/${lists.count()}] ${emailPassword} - ${errorMessage} - ${elapsedTimeSeconds}s`,
         );
       } finally {
-        //
+        done++;
       }
     },
   );
